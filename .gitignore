@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+hostel.db
+static/uploads/*
+!static/uploads/.gitkeep
