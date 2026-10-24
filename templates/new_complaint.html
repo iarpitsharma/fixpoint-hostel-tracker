@@ -1,77 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raise Grievance | FixPoint</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FixPoint - Report Issue</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8">
-    <div class="max-w-2xl mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl">
-        <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-6">
-            <div>
-                <h2 class="text-xl font-bold">Raise New Grievance</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Backed by 24-Hour SLA Escalation Guarantee</p>
+<body class="bg-slate-50 min-h-screen text-slate-800 p-4 sm:p-8">
+  <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-xl font-bold text-slate-900">Report a Grievance</h1>
+        <p class="text-xs text-slate-500">Provide complete details to help the warden address the issue quickly.</p>
+      </div>
+      <a href="{{ url_for('student_dashboard') }}" class="text-xs font-semibold text-slate-500 hover:text-slate-800">
+        &larr; Back
+      </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-4 space-y-2">
+          {% for category, msg in messages %}
+            <div class="p-3 rounded-lg text-xs font-medium {% if category == 'error' %}bg-rose-100 text-rose-700{% elif category == 'warning' %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
+              {{ msg }}
             </div>
-            <a href="/dashboard" class="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300">
-                Cancel
-            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('new_complaint') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1">Issue Title</label>
+        <input 
+          type="text" 
+          name="title" 
+          required 
+          placeholder="e.g. Geyser not heating water in washroom 2" 
+          class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Category</label>
+          <select 
+            name="category" 
+            required 
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="Electricity">Electricity</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="Carpentry">Carpentry</option>
+            <option value="Wi-Fi & Internet">Wi-Fi & Internet</option>
+            <option value="Cleanliness">Cleanliness</option>
+            <option value="Mess / Food">Mess / Food</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
 
-        <form action="/new_complaint" method="POST" enctype="multipart/form-data" class="space-y-5">
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Category</label>
-                <select name="category" required 
-                        class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 text-white">
-                    <option value="Plumbing">Plumbing (Water leakage, tap, flush)</option>
-                    <option value="Electrical">Electrical (Fan, light, socket, switch)</option>
-                    <option value="Carpentry">Carpentry (Bed, door lock, cupboard, window)</option>
-                    <option value="Wi-Fi/Network">Wi-Fi & LAN Network</option>
-                    <option value="Cleanliness">Room & Washroom Cleanliness</option>
-                </select>
-            </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Priority</label>
+          <select 
+            name="priority" 
+            required 
+            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="Low">Low</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="High">High</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
 
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Issue Title</label>
-                <input type="text" name="title" required placeholder="e.g. Washroom tap constantly leaking" 
-                       class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 text-white placeholder-slate-500">
-            </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1">Detailed Description</label>
+        <textarea 
+          name="description" 
+          rows="4" 
+          required 
+          placeholder="Describe the problem, location, and how long it has persisted..." 
+          class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        ></textarea>
+      </div>
 
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Priority Level</label>
-                <div class="grid grid-cols-3 gap-3">
-                    <label class="flex items-center justify-center p-3 bg-slate-900 border border-slate-700 rounded-xl cursor-pointer hover:border-indigo-500">
-                        <input type="radio" name="priority" value="Normal" checked class="text-indigo-600 mr-2">
-                        <span class="text-sm">Normal</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 bg-slate-900 border border-slate-700 rounded-xl cursor-pointer hover:border-amber-500">
-                        <input type="radio" name="priority" value="Urgent" class="text-amber-500 mr-2">
-                        <span class="text-sm text-amber-400">Urgent</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 bg-slate-900 border border-slate-700 rounded-xl cursor-pointer hover:border-rose-500">
-                        <input type="radio" name="priority" value="Emergency" class="text-rose-500 mr-2">
-                        <span class="text-sm text-rose-400">Emergency</span>
-                    </label>
-                </div>
-            </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1">Attach Photo (Optional)</label>
+        <input 
+          type="file" 
+          name="image" 
+          accept="image/*" 
+          class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+        >
+      </div>
 
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Detailed Description</label>
-                <textarea name="description" rows="3" required placeholder="Specify exact details (e.g. 3rd floor washroom, middle tap)" 
-                          class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 text-white placeholder-slate-500"></textarea>
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Attach Photo (Optional)</label>
-                <input type="file" name="photo" accept="image/*" 
-                       class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer">
-            </div>
-
-            <button type="submit" 
-                    class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition-all mt-4">
-                Submit Grievance
-            </button>
-        </form>
-    </div>
+      <div class="pt-2 flex items-center justify-end space-x-3">
+        <a href="{{ url_for('student_dashboard') }}" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">
+          Cancel
+        </a>
+        <button 
+          type="submit" 
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors shadow-sm"
+        >
+          Submit Ticket
+        </button>
+      </div>
+    </form>
+  </div>
 </body>
 </html>

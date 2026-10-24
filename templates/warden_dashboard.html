@@ -1,124 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warden Command Center | FixPoint</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FixPoint - Warden Command Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
-    <!-- Navbar -->
-    <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-            <span class="text-xl font-bold font-mono text-indigo-400">⚡ FixPoint</span>
-            <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">Warden Admin</span>
-        </div>
-        <div class="flex items-center space-x-4">
-            <span class="text-sm font-semibold text-slate-200">Head Warden Office</span>
-            <a href="/logout" class="text-xs px-3 py-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg hover:bg-rose-500/30">
-                Logout
-            </a>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto p-4 md:p-8 space-y-6">
-        <!-- Live KPI Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl">
-                <p class="text-xs text-slate-400 font-semibold uppercase">Total Filed</p>
-                <h3 class="text-2xl font-bold mt-1 text-slate-100">{{ total }}</h3>
-            </div>
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl">
-                <p class="text-xs text-slate-400 font-semibold uppercase">Pending</p>
-                <h3 class="text-2xl font-bold mt-1 text-slate-300">{{ pending }}</h3>
-            </div>
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl">
-                <p class="text-xs text-amber-400 font-semibold uppercase">In Progress</p>
-                <h3 class="text-2xl font-bold mt-1 text-amber-400">{{ in_progress }}</h3>
-            </div>
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl">
-                <p class="text-xs text-rose-400 font-semibold uppercase">Escalated (>24h)</p>
-                <h3 class="text-2xl font-bold mt-1 text-rose-400">{{ escalated }}</h3>
-            </div>
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl">
-                <p class="text-xs text-emerald-400 font-semibold uppercase">Resolved</p>
-                <h3 class="text-2xl font-bold mt-1 text-emerald-400">{{ resolved }}</h3>
-            </div>
-        </div>
-
-        <!-- Management Table -->
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
-            <div class="p-5 border-b border-slate-700 flex justify-between items-center">
-                <h2 class="text-lg font-bold">Grievance Queue (Sorted by Impact & Votes)</h2>
-                <span class="text-xs text-slate-400">Total Records: {{ complaints|length }}</span>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-300">
-                    <thead class="bg-slate-900/60 text-xs uppercase text-slate-400 border-b border-slate-700">
-                        <tr>
-                            <th class="p-4">ID & Votes</th>
-                            <th class="p-4">Student & Room</th>
-                            <th class="p-4">Category & Details</th>
-                            <th class="p-4">Current Status</th>
-                            <th class="p-4">Action / Resolution Note</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-700/60">
-                        {% for c in complaints %}
-                        <tr class="hover:bg-slate-700/30 transition-colors">
-                            <td class="p-4">
-                                <span class="font-mono text-slate-400">#{{ c.id }}</span>
-                                <div class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                                    ▲ {{ c.upvotes }} Votes
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <p class="font-semibold text-slate-200">{{ c.student_name }}</p>
-                                <p class="text-xs text-slate-400">{{ c.room_no }}</p>
-                            </td>
-                            <td class="p-4 max-w-xs">
-                                <span class="text-xs font-medium px-2 py-0.5 rounded bg-slate-700 text-slate-300">{{ c.category }}</span>
-                                <p class="font-semibold text-slate-200 mt-1">{{ c.title }}</p>
-                                <p class="text-xs text-slate-400 line-clamp-2 mt-0.5">{{ c.description }}</p>
-                                {% if c.photo_path %}
-                                  <a href="/static/uploads/{{ c.photo_path }}" target="_blank" class="text-xs text-indigo-400 underline block mt-1">View Attached Photo</a>
-                                {% endif %}
-                            </td>
-                            <td class="p-4">
-                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold
-                                    {% if c.status == 'Resolved' %} bg-emerald-500/20 text-emerald-300 border border-emerald-500/30
-                                    {% elif c.status == 'In Progress' %} bg-amber-500/20 text-amber-300 border border-amber-500/30
-                                    {% elif c.status == 'Escalated' %} bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse
-                                    {% else %} bg-slate-700 text-slate-300 {% endif %}">
-                                    {{ c.status }}
-                                </span>
-                            </td>
-                            <td class="p-4">
-                                <form action="/update_status/{{ c.id }}" method="POST" class="flex flex-col gap-2">
-                                    <div class="flex items-center gap-2">
-                                        <select name="status" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                                            <option value="Pending" {% if c.status == 'Pending' %}selected{% endif %}>Pending</option>
-                                            <option value="In Progress" {% if c.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                                            <option value="Resolved" {% if c.status == 'Resolved' %}selected{% endif %}>Resolved</option>
-                                            <option value="Escalated" {% if c.status == 'Escalated' %}selected{% endif %}>Escalated</option>
-                                        </select>
-                                        <button type="submit" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold">
-                                            Update
-                                        </button>
-                                    </div>
-                                    <input type="text" name="resolution_notes" placeholder="Resolution remark (e.g. Electrician visited)" 
-                                           value="{{ c.resolution_notes or '' }}"
-                                           class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+  <!-- Top Navigation -->
+  <nav class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow sticky top-0 z-50">
+    <div class="flex items-center space-x-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center font-bold text-white shadow">FP</div>
+      <div>
+        <span class="font-bold text-lg tracking-tight">FixPoint</span>
+        <span class="text-xs bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded ml-2 font-mono">Warden Panel</span>
+      </div>
     </div>
+    <div class="flex items-center space-x-4 text-sm">
+      <a href="{{ url_for('export_csv') }}" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow flex items-center gap-1.5 transition">
+        <span>↓ Export CSV Report</span>
+      </a>
+      <span class="text-slate-300 font-medium">Warden: {{ session['username'] }}</span>
+      <a href="{{ url_for('logout') }}" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-200 transition">Logout</a>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6 space-y-2">
+          {% for category, msg in messages %}
+            <div class="p-3 rounded-lg text-sm {% if category == 'error' %}bg-rose-100 text-rose-700{% elif category == 'warning' %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
+              {{ msg }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Metrics Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Tickets</p>
+        <p class="text-2xl font-bold text-slate-900 mt-1">{{ total }}</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-amber-200 bg-amber-50/20 shadow-sm">
+        <p class="text-xs font-medium text-amber-600 uppercase tracking-wider">Pending</p>
+        <p class="text-2xl font-bold text-amber-600 mt-1">{{ pending }}</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm">
+        <p class="text-xs font-medium text-blue-600 uppercase tracking-wider">In Progress</p>
+        <p class="text-2xl font-bold text-blue-600 mt-1">{{ in_progress }}</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-rose-200 bg-rose-50/40 shadow-sm">
+        <p class="text-xs font-medium text-rose-600 uppercase tracking-wider">Escalated (&gt;24h)</p>
+        <p class="text-2xl font-bold text-rose-600 mt-1">{{ escalated }}</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm">
+        <p class="text-xs font-medium text-emerald-600 uppercase tracking-wider">Resolved</p>
+        <p class="text-2xl font-bold text-emerald-600 mt-1">{{ resolved }}</p>
+      </div>
+    </div>
+
+    <!-- Analytics Charts Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-800 mb-3">Complaints by Status</h3>
+        <div class="h-56 flex items-center justify-center">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-800 mb-3">Complaints by Category</h3>
+        <div class="h-56 flex items-center justify-center">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div class="w-full sm:w-80">
+        <input 
+          type="text" 
+          id="searchInput" 
+          onkeyup="filterComplaints()" 
+          placeholder="Search by student, room, title..." 
+          class="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        >
+      </div>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <select id="statusFilter" onchange="filterComplaints()" class="text-xs border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+          <option value="ALL">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Escalated">Escalated</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+        <select id="categoryFilter" onchange="filterComplaints()" class="text-xs border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+          <option value="ALL">All Categories</option>
+          <option value="Electricity">Electricity</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="Carpentry">Carpentry</option>
+          <option value="Wi-Fi & Internet">Wi-Fi & Internet</option>
+          <option value="Cleanliness">Cleanliness</option>
+          <option value="Mess / Food">Mess / Food</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Grievances List -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+        <h2 class="font-bold text-slate-900">Manage Tickets</h2>
+        <span class="text-xs text-slate-500" id="ticketCount">Showing {{ complaints|length }} tickets</span>
+      </div>
+
+      <div class="divide-y divide-slate-200" id="complaintsList">
+        {% for c in complaints %}
+          <div class="p-6 complaint-item" data-title="{{ c.title|lower }}" data-username="{{ c.username|lower }}" data-room="{{ c.room_no }}" data-status="{{ c.status }}" data-category="{{ c.category }}">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+              <div>
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                  <span class="text-xs font-bold px-2 py-0.5 rounded-full
+                    {% if c.status == 'Resolved' %}bg-emerald-100 text-emerald-700
+                    {% elif c.status == 'Escalated' %}bg-rose-100 text-rose-700
+                    {% elif c.status == 'In Progress' %}bg-blue-100 text-blue-700
+                    {% else %}bg-amber-100 text-amber-700{% endif %}">
+                    {{ c.status }}
+                  </span>
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">{{ c.category }}</span>
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded 
+                    {% if c.priority == 'Urgent' %}bg-red-100 text-red-700
+                    {% elif c.priority == 'High' %}bg-orange-100 text-orange-700
+                    {% else %}bg-slate-100 text-slate-600{% endif %}">
+                    {{ c.priority }}
+                  </span>
+                  <span class="text-xs text-slate-400">#{{ c.id }}</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">{{ c.title }}</h3>
+                <p class="text-xs text-slate-500 mt-1">
+                  Reported by <strong>{{ c.username }}</strong> (Room {{ c.room_no }}) on {{ c.created_at }}
+                  • <span class="text-indigo-600 font-semibold">{{ c.upvotes }} student upvotes</span>
+                </p>
+              </div>
+
+              <!-- Action Buttons: Update Status & Delete Ticket -->
+              <div class="flex flex-wrap items-center gap-2">
+                <form action="{{ url_for('update_status', complaint_id=c.id) }}" method="POST" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <select name="status" class="text-xs font-medium border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500">
+                    <option value="Pending" {% if c.status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="In Progress" {% if c.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Escalated" {% if c.status == 'Escalated' %}selected{% endif %}>Escalated</option>
+                    <option value="Resolved" {% if c.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                  </select>
+                  <input 
+                    type="text" 
+                    name="resolution_notes" 
+                    value="{{ c.resolution_notes or '' }}" 
+                    placeholder="Resolution remarks..." 
+                    class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 w-48"
+                  >
+                  <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                    Save
+                  </button>
+                </form>
+
+                <!-- Dedicated Warden Delete Button -->
+                <form action="{{ url_for('delete_complaint', complaint_id=c.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete ticket #{{ c.id }}?');">
+                  <button type="submit" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <p class="text-sm text-slate-700 whitespace-pre-wrap mb-3">{{ c.description }}</p>
+
+            {% if c.image_filename %}
+              <div class="mt-2">
+                <img src="{{ url_for('static', filename='uploads/' + c.image_filename) }}" alt="Ticket photo" class="max-h-48 rounded-lg border object-cover">
+              </div>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="text-center py-12 text-slate-400 text-sm">
+            No complaints currently recorded.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+
+  <script>
+    new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Pending', 'In Progress', 'Escalated', 'Resolved'],
+        datasets: [{
+          data: [{{ pending }}, {{ in_progress }}, {{ escalated }}, {{ resolved }}],
+          backgroundColor: ['#f59e0b', '#3b82f6', '#f43f5e', '#10b981'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    const catLabels = {{ chart_categories|safe }};
+    const catValues = {{ chart_category_values|safe }};
+    new Chart(document.getElementById('categoryChart'), {
+      type: 'bar',
+      data: {
+        labels: catLabels.length ? catLabels : ['None'],
+        datasets: [{
+          label: 'Tickets',
+          data: catValues.length ? catValues : [0],
+          backgroundColor: '#6366f1',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+
+    function filterComplaints() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const category = document.getElementById('categoryFilter').value;
+      const items = document.querySelectorAll('.complaint-item');
+      let visibleCount = 0;
+
+      items.forEach(item => {
+        const title = item.getAttribute('data-title');
+        const user = item.getAttribute('data-username');
+        const room = item.getAttribute('data-room');
+        const itemStatus = item.getAttribute('data-status');
+        const itemCategory = item.getAttribute('data-category');
+
+        const matchesSearch = title.includes(search) || user.includes(search) || room.includes(search);
+        const matchesStatus = (status === 'ALL' || itemStatus === status);
+        const matchesCategory = (category === 'ALL' || itemCategory === category);
+
+        if (matchesSearch && matchesStatus && matchesCategory) {
+          item.style.display = '';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      document.getElementById('ticketCount').innerText = `Showing ${visibleCount} tickets`;
+    }
+  </script>
 </body>
 </html>
