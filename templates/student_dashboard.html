@@ -1,122 +1,477 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="cu-red">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FixPoint - Student Dashboard</title>
+  <title>FixPoint - Student Portal | Chandigarh University</title>
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50 min-h-screen text-slate-800">
-  <nav class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center shadow sticky top-0 z-50">
-    <div class="flex items-center space-x-2">
-      <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center font-bold">FP</div>
-      <span class="font-bold text-xl tracking-tight">FixPoint</span>
-    </div>
-    <div class="flex items-center space-x-4 text-sm">
-      <span class="text-indigo-100">Room {{ session['room_no'] }} ({{ session['username'] }})</span>
-      <a href="{{ url_for('logout') }}" class="bg-indigo-700 hover:bg-indigo-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition">Logout</a>
-    </div>
-  </nav>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
-  <main class="max-w-6xl mx-auto px-4 py-8">
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* --- THEMES --- */
+    
+    /* 🔴 Official Chandigarh University Red & White */
+    html[data-theme="cu-red"] {
+      --bg-base: #5a0b0d;
+      --bg-surface: rgba(140, 20, 24, 0.88);
+      --bg-card: rgba(169, 27, 29, 0.82);
+      --border-glow: rgba(255, 255, 255, 0.28);
+      --border-hover: rgba(255, 255, 255, 0.85);
+      --accent-primary: #ffffff;
+      --accent-secondary: #fecaca;
+      --text-main: #ffffff;
+      --text-muted: #fed7aa;
+      --card-highlight: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.18), transparent 70%);
+      --glow-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    /* 🌌 Cyberpunk Void */
+    html[data-theme="cyberpunk"] {
+      --bg-base: #060913;
+      --bg-surface: rgba(15, 23, 42, 0.75);
+      --bg-card: rgba(20, 27, 45, 0.7);
+      --border-glow: rgba(56, 189, 248, 0.25);
+      --border-hover: rgba(168, 85, 247, 0.6);
+      --accent-primary: #38bdf8;
+      --accent-secondary: #c084fc;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --card-highlight: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12), transparent 70%);
+      --glow-shadow: 0 0 25px -5px rgba(56, 189, 248, 0.3);
+    }
+
+    /* ⚡ Hyper Violet */
+    html[data-theme="hyperviolet"] {
+      --bg-base: #090314;
+      --bg-surface: rgba(27, 14, 46, 0.8);
+      --bg-card: rgba(36, 18, 62, 0.7);
+      --border-glow: rgba(168, 85, 247, 0.3);
+      --border-hover: rgba(236, 72, 153, 0.6);
+      --accent-primary: #c084fc;
+      --accent-secondary: #f472b6;
+      --text-main: #faf5ff;
+      --text-muted: #c084fc;
+      --card-highlight: radial-gradient(circle at 50% 0%, rgba(192, 132, 252, 0.15), transparent 70%);
+      --glow-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.4);
+    }
+
+    /* 🟢 Matrix */
+    html[data-theme="matrix"] {
+      --bg-base: #020c06;
+      --bg-surface: rgba(5, 25, 14, 0.8);
+      --bg-card: rgba(8, 33, 19, 0.7);
+      --border-glow: rgba(34, 197, 94, 0.3);
+      --border-hover: rgba(74, 222, 128, 0.7);
+      --accent-primary: #22c55e;
+      --accent-secondary: #4ade80;
+      --text-main: #f0fdf4;
+      --text-muted: #86efac;
+      --card-highlight: radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.15), transparent 70%);
+      --glow-shadow: 0 0 25px -5px rgba(34, 197, 94, 0.35);
+    }
+
+    /* ☀️ Clean Daylight */
+    html[data-theme="clean"] {
+      --bg-base: #f8fafc;
+      --bg-surface: rgba(255, 255, 255, 0.95);
+      --bg-card: #ffffff;
+      --border-glow: rgba(203, 213, 225, 0.8);
+      --border-hover: rgba(185, 28, 28, 0.6);
+      --accent-primary: #b91c1c;
+      --accent-secondary: #dc2626;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --card-highlight: none;
+      --glow-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      transition: background-color 0.35s ease, color 0.35s ease;
+    }
+
+    .cyber-grid {
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    .glass-panel {
+      background: var(--bg-surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+    }
+
+    .interactive-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      background-image: var(--card-highlight);
+      box-shadow: var(--glow-shadow);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .interactive-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-hover);
+      box-shadow: 0 16px 35px -5px rgba(0, 0, 0, 0.45);
+    }
+
+    .glow-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .glow-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, transparent, rgba(255,255,255,0.22), transparent);
+      transform: rotate(25deg);
+      transition: all 0.6s ease;
+    }
+    .glow-btn:hover::after {
+      left: 100%;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between cyber-grid relative overflow-x-hidden selection:bg-rose-600 selection:text-white">
+
+  <!-- Glow Highlights -->
+  <div class="fixed top-0 left-1/4 w-96 h-96 rounded-full bg-red-500/15 blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed bottom-10 right-1/4 w-96 h-96 rounded-full bg-white/5 blur-3xl pointer-events-none -z-10"></div>
+
+  <!-- Header -->
+  <header class="glass-panel sticky top-0 z-40 border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- CU Institutional Seal + Standalone FixPoint Logo -->
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2.5 pr-4 border-r border-white/20">
+          <img 
+            src="{{ url_for('static', filename='cu_logo.png') }}" 
+            alt="Chandigarh University" 
+            class="h-10 w-auto object-contain bg-white rounded p-0.5 shadow-sm"
+            onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/en/thumb/d/d7/Chandigarh_University_seal.svg/1200px-Chandigarh_University_seal.svg.png';"
+          >
+          <div class="hidden sm:block">
+            <span class="text-[11px] font-bold text-white block uppercase tracking-wider">Chandigarh University</span>
+            <span class="text-[9px] font-mono text-red-200">Dept. of Computer Science & Eng.</span>
+          </div>
+        </div>
+
+        <a href="{{ url_for('student_dashboard') }}" class="flex items-center space-x-2.5 group">
+          <div class="w-9 h-9 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
+              <defs>
+                <linearGradient id="navFpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffffff" />
+                  <stop offset="100%" stop-color="#fca5a5" />
+                </linearGradient>
+              </defs>
+              <polygon points="50,4 92,26 92,74 50,96 8,74 8,26" fill="rgba(15, 23, 42, 0.9)" stroke="url(#navFpGrad)" stroke-width="6" stroke-linejoin="round"/>
+              <path d="M54 22 L32 52 L48 52 L44 78 L68 46 L52 46 Z" fill="url(#navFpGrad)"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-black tracking-tight text-white">
+                FIX<span class="text-white drop-shadow-md">POINT</span>
+              </span>
+              <span class="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full uppercase border border-white/40 text-white bg-black/25">
+                v2.0
+              </span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Action Nav Buttons -->
+      <div class="flex items-center space-x-3">
+        
+        <!-- Theme Selector -->
+        <div class="relative inline-block text-left">
+          <select 
+            id="themeSelector" 
+            onchange="switchTheme(this.value)" 
+            class="glass-panel text-xs font-bold px-3 py-2 rounded-xl border appearance-none pr-8 cursor-pointer focus:outline-none transition shadow-sm"
+            style="color: var(--text-main); border-color: var(--border-glow);"
+          >
+            <option value="cu-red" class="bg-red-950 text-white font-bold">🔴 CU Red & White</option>
+            <option value="cyberpunk" class="bg-slate-900 text-white">🌌 Cyberpunk</option>
+            <option value="hyperviolet" class="bg-slate-900 text-white">⚡ Hyper Violet</option>
+            <option value="matrix" class="bg-slate-900 text-white">🟢 Matrix</option>
+            <option value="clean" class="bg-slate-100 text-slate-900">☀️ Clean Daylight</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-xs" style="color: var(--text-muted);">
+            ▾
+          </div>
+        </div>
+
+        <!-- Room QR -->
+        <a href="{{ url_for('door_qr', room=session.get('room_no', 'NC2-808')) }}" class="glow-btn glass-panel text-xs font-bold px-3.5 py-2 rounded-xl transition inline-flex items-center gap-2 shadow-sm" style="border-color: var(--border-glow); color: var(--text-main);">
+          <span>📱</span>
+          <span class="hidden sm:inline">Room QR</span>
+        </a>
+
+        <!-- New Complaint Ticket -->
+        <a href="{{ url_for('new_complaint') }}" class="glow-btn text-xs font-black px-4 py-2 rounded-xl transition inline-flex items-center gap-1.5 shadow-lg bg-white text-red-900 hover:bg-red-50">
+          <span class="text-sm font-black">+</span>
+          <span>New Ticket</span>
+        </a>
+
+        <!-- Profile Pill -->
+        <div class="hidden md:flex items-center space-x-2 pl-2 border-l border-white/20">
+          <div class="w-8 h-8 rounded-full bg-white text-red-900 font-extrabold flex items-center justify-center text-xs shadow">
+            {{ session.get('username')[:2]|upper }}
+          </div>
+          <div class="text-left text-[11px]">
+            <p class="font-bold leading-tight" style="color: var(--text-main);">{{ session.get('username') }}</p>
+            <p class="font-mono text-[10px]" style="color: var(--text-muted);">Room {{ session.get('room_no', 'NC2-808') }}</p>
+          </div>
+        </div>
+
+        <a href="{{ url_for('logout') }}" class="text-xs font-bold text-white/80 hover:text-white px-2 py-1.5 transition ml-1" title="Sign out">
+          ✕
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Feed Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1 w-full">
+
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="mb-6 space-y-2">
+        <div class="space-y-2">
           {% for category, msg in messages %}
-            <div class="p-3 rounded-lg text-sm {% if category == 'error' %}bg-rose-100 text-rose-700{% elif category == 'warning' %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
-              {{ msg }}
+            <div class="p-4 rounded-2xl text-xs font-bold border backdrop-blur-md flex items-center justify-between {% if category == 'error' %}bg-rose-950/80 border-rose-600 text-white{% elif category == 'warning' %}bg-amber-950/80 border-amber-500 text-amber-200{% else %}bg-emerald-950/80 border-emerald-500 text-emerald-200{% endif %}">
+              <span>{{ msg }}</span>
+              <span class="font-mono text-[10px] opacity-75">STATUS VERIFIED</span>
             </div>
           {% endfor %}
         </div>
       {% endif %}
     {% endwith %}
 
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">Hostel Complaints</h1>
-        <p class="text-xs text-slate-500">Upvote common issues or submit a new grievance</p>
+    <div class="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+      <div class="space-y-2 z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold bg-white/10 border border-white/30 text-white">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          Chandigarh University Hostel Network
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight" style="color: var(--text-main);">
+          Resident Grievance Feed
+        </h1>
+        <p class="text-xs sm:text-sm max-w-xl leading-relaxed" style="color: var(--text-muted);">
+          Community ticket logging & upvote tracking. Unresolved issues auto-escalate after 24 hours.
+        </p>
       </div>
-      <a href="{{ url_for('new_complaint') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow-sm transition">
-        + Report Issue
-      </a>
+
+      <div class="flex items-center gap-4 z-10">
+        <div class="glass-panel px-5 py-3 rounded-2xl border text-center">
+          <span class="block text-2xl font-black font-mono text-white">{{ complaints|length }}</span>
+          <span class="text-[10px] uppercase tracking-wider font-bold" style="color: var(--text-muted);">Active Complaints</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Live Search Filter for Students -->
-    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm mb-6 flex items-center gap-3">
-      <input 
-        type="text" 
-        id="studentSearch" 
-        onkeyup="filterStudentTickets()" 
-        placeholder="Filter complaints by keywords (e.g. Wi-Fi, washroom, water)..." 
-        class="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-      >
-    </div>
+    {% if complaints %}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for c in complaints %}
+          <div class="interactive-card rounded-3xl p-6 flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-black/30 text-white border border-white/20">
+                  #{{ c['id'] }}
+                </span>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="cardsGrid">
-      {% for c in complaints %}
-        <div class="complaint-card bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col justify-between" data-text="{{ c.title|lower }} {{ c.description|lower }} {{ c.category|lower }}">
-          <div>
-            <div class="flex justify-between items-start mb-2">
-              <span class="text-xs font-semibold px-2 py-0.5 rounded-full 
-                {% if c.status == 'Resolved' %}bg-emerald-100 text-emerald-700
-                {% elif c.status == 'Escalated' %}bg-rose-100 text-rose-700
-                {% elif c.status == 'In Progress' %}bg-blue-100 text-blue-700
-                {% else %}bg-amber-100 text-amber-700{% endif %}">
-                ● {{ c.status }}
-              </span>
-              <span class="text-xs text-slate-400">{{ c.created_at }}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full border border-white/30 text-white bg-black/20">
+                    {{ c['category'] }}
+                  </span>
+
+                  {% if c['status'] == 'Escalated' %}
+                    <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-red-950 text-white border border-white animate-pulse">
+                      🚨 Escalated
+                    </span>
+                  {% elif c['status'] == 'Closed' %}
+                    <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/40">
+                      ✓ Closed
+                    </span>
+                  {% elif c['status'] == 'Resolved' %}
+                    <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 border border-emerald-400">
+                      ✓ Resolved
+                    </span>
+                  {% elif c['status'] == 'Reopened' %}
+                    <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400">
+                      ↺ Reopened
+                    </span>
+                  {% elif c['status'] == 'In Progress' %}
+                    <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/30 text-amber-200 border border-amber-400">
+                      ⚙ In Progress
+                    </span>
+                  {% else %}
+                    <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-white border border-white/30">
+                      ● Pending
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-base font-extrabold leading-snug text-white">
+                  {{ c['title'] }}
+                </h3>
+                <p class="text-xs mt-1.5 line-clamp-3 leading-relaxed" style="color: var(--text-muted);">
+                  {{ c['description'] }}
+                </p>
+              </div>
+
+              {% if c['image_filename'] %}
+                <div class="relative rounded-2xl overflow-hidden border border-white/30 group/img">
+                  <img 
+                    src="{{ url_for('static', filename='uploads/' + c['image_filename']) }}" 
+                    alt="Proof Photo" 
+                    class="w-full h-40 object-cover transform transition duration-500 group-hover/img:scale-105"
+                  >
+                  <a href="{{ url_for('static', filename='uploads/' + c['image_filename']) }}" target="_blank" class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-white/30">
+                    🔍 View Proof
+                  </a>
+                </div>
+              {% endif %}
+
+              {% if c['resolution_notes'] %}
+                <div class="p-3.5 rounded-2xl border text-xs space-y-1 bg-black/25 border-white/20">
+                  <div class="flex items-center gap-1.5 font-bold text-[11px] text-white">
+                    <span>🛡️ Warden Remarks:</span>
+                  </div>
+                  <p class="text-slate-200 text-[11px] leading-relaxed">{{ c['resolution_notes'] }}</p>
+                </div>
+              {% endif %}
+
+              <!-- Student Verification Card: YES / NO -->
+              {% if c['status'] == 'Resolved' and c['user_id'] == session['user_id'] %}
+                <div class="p-4 rounded-2xl border border-white/40 bg-black/30 space-y-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm">⚡</span>
+                    <span class="text-xs font-bold text-white">Has your issue been fixed?</span>
+                  </div>
+                  <form action="{{ url_for('verify_complaint', complaint_id=c['id']) }}" method="POST" class="flex gap-2">
+                    <button 
+                      type="submit" 
+                      name="decision" 
+                      value="yes" 
+                      class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2 px-3 rounded-xl shadow transition"
+                    >
+                      ✓ Yes, Close
+                    </button>
+                    <button 
+                      type="submit" 
+                      name="decision" 
+                      value="no" 
+                      class="flex-1 bg-white hover:bg-slate-100 text-red-900 text-xs font-bold py-2 px-3 rounded-xl shadow transition"
+                    >
+                      ✕ No, Reopen
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
             </div>
 
-            <h2 class="text-lg font-bold text-slate-900 mb-1">{{ c.title }}</h2>
-            <p class="text-xs font-medium text-slate-500 mb-2">Category: {{ c.category }} • Priority: {{ c.priority }} • Room: {{ c.room_no }}</p>
-            <p class="text-sm text-slate-700 mb-4 whitespace-pre-wrap">{{ c.description }}</p>
-
-            {% if c.image_filename %}
-              <div class="mb-4">
-                <img src="{{ url_for('static', filename='uploads/' + c.image_filename) }}" alt="Attachment" class="max-h-48 rounded-lg border object-cover">
+            <div class="pt-5 mt-5 border-t border-white/20 flex items-center justify-between">
+              <div class="text-[11px] font-medium" style="color: var(--text-muted);">
+                <span class="font-bold text-white">Room {{ c['room_no'] }}</span>
+                <span class="mx-1.5">•</span>
+                <span>{{ c['created_at'][:10] }}</span>
               </div>
-            {% endif %}
 
-            {% if c.resolution_notes %}
-              <div class="bg-emerald-50 border-l-4 border-emerald-500 p-2.5 rounded text-xs text-emerald-800 mb-4">
-                <strong>Warden Remark:</strong> {{ c.resolution_notes }}
-              </div>
-            {% endif %}
-          </div>
-
-          <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
-            <span class="text-xs text-slate-400">By {{ c.username }}</span>
-            
-            {% if c.id in user_voted_ids %}
-              <button disabled class="bg-slate-100 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-lg cursor-not-allowed">
-                ✓ Upvoted ({{ c.upvotes }})
-              </button>
-            {% else %}
-              <form action="{{ url_for('upvote', complaint_id=c.id) }}" method="POST">
-                <button type="submit" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
-                  ▲ Upvote ({{ c.upvotes }})
-                </button>
+              <form action="{{ url_for('upvote', complaint_id=c['id']) }}" method="POST">
+                {% if c['id'] in user_voted_ids %}
+                  <button 
+                    type="button" 
+                    disabled 
+                    class="font-mono text-xs font-bold px-3 py-1.5 rounded-xl border border-white/30 bg-black/30 text-white cursor-default flex items-center gap-1.5"
+                  >
+                    <span>▲</span>
+                    <span>VOTED</span>
+                    <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px] text-white">{{ c['upvotes'] }}</span>
+                  </button>
+                {% else %}
+                  <button 
+                    type="submit" 
+                    class="glow-btn font-mono text-xs font-bold px-3 py-1.5 rounded-xl border border-white/30 bg-white/10 hover:bg-white hover:text-red-900 text-white transition flex items-center gap-1.5 shadow"
+                  >
+                    <span>▲</span>
+                    <span>UPVOTE</span>
+                    <span class="bg-black/30 px-1.5 py-0.5 rounded text-[10px] border border-white/20 text-white">{{ c['upvotes'] }}</span>
+                  </button>
+                {% endif %}
               </form>
-            {% endif %}
+            </div>
           </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-20 glass-panel rounded-3xl border border-dashed border-white/30">
+        <div class="w-16 h-16 rounded-2xl bg-white/10 text-white mx-auto flex items-center justify-center text-3xl mb-4">
+          ✨
         </div>
-      {% else %}
-        <div class="col-span-2 text-center py-12 text-slate-400">
-          No complaints registered yet.
-        </div>
-      {% endfor %}
-    </div>
+        <h3 class="text-base font-bold text-white">Zero Unresolved Grievances</h3>
+        <p class="text-xs mt-1 max-w-sm mx-auto" style="color: var(--text-muted);">
+          All room amenities and infrastructure systems are currently operating normally.
+        </p>
+        <a href="{{ url_for('new_complaint') }}" class="mt-5 inline-block text-xs font-bold px-5 py-2.5 rounded-xl bg-white text-red-900 hover:bg-red-50 shadow-lg transition">
+          Register First Grievance
+        </a>
+      </div>
+    {% endif %}
+
   </main>
 
+  <!-- Footbar -->
+  <footer class="glass-panel border-t mt-12 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <div class="flex items-center space-x-3">
+        <img 
+          src="{{ url_for('static', filename='cu_logo.png') }}" 
+          alt="CU Seal" 
+          class="h-7 w-auto object-contain bg-white rounded p-0.5"
+          onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/en/thumb/d/d7/Chandigarh_University_seal.svg/1200px-Chandigarh_University_seal.svg.png';"
+        >
+        <div>
+          <p class="text-xs font-bold tracking-wide" style="color: var(--text-main);">
+            FixPoint v2.0 • Chandigarh University
+          </p>
+          <p class="text-[11px] font-mono" style="color: var(--text-muted);">
+            Created by Arpit Sharma (26BCS12057)
+          </p>
+        </div>
+      </div>
+      <div class="text-xs font-mono font-medium" style="color: var(--text-muted);">
+        UIE • Computer Science & Engineering
+      </div>
+    </div>
+  </footer>
+
   <script>
-    function filterStudentTickets() {
-      const query = document.getElementById('studentSearch').value.toLowerCase();
-      const cards = document.querySelectorAll('.complaint-card');
-      cards.forEach(card => {
-        const text = card.getAttribute('data-text');
-        card.style.display = text.includes(query) ? '' : 'none';
-      });
+    function switchTheme(themeName) {
+      document.documentElement.setAttribute('data-theme', themeName);
+      localStorage.setItem('fixpoint_theme', themeName);
     }
+    const savedTheme = localStorage.getItem('fixpoint_theme') || 'cu-red';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    const selector = document.getElementById('themeSelector');
+    if (selector) selector.value = savedTheme;
   </script>
 </body>
 </html>

@@ -3,66 +3,192 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FixPoint - Login</title>
+  <title>FixPoint v2.0 - Secure Access Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    .cyber-grid {
+      background-color: #060913;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(185, 28, 28, 0.15);
+    }
+
+    .glow-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .glow-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: rotate(25deg);
+      transition: all 0.65s ease;
+    }
+    .glow-btn:hover::after {
+      left: 100%;
+    }
+  </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
-  <div class="max-w-md w-full bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
-    <div class="text-center mb-6">
-      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 text-white font-bold text-xl mb-3">
-        FP
-      </div>
-      <h1 class="text-2xl font-bold text-slate-900">Sign in to FixPoint</h1>
-      <p class="text-xs text-slate-500 mt-1">Hostel Grievance Redressal Portal</p>
-    </div>
+<body class="min-h-screen cyber-grid flex flex-col justify-between text-slate-100 relative overflow-x-hidden selection:bg-rose-600 selection:text-white">
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="mb-4 space-y-2">
-          {% for category, msg in messages %}
-            <div class="p-3 rounded-lg text-xs font-medium {% if category == 'error' %}bg-rose-100 text-rose-700{% elif category == 'warning' %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
-              {{ msg }}
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+  <!-- Glow Ambient Blobs -->
+  <div class="fixed -top-20 -left-20 w-96 h-96 rounded-full bg-rose-600/20 blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed -bottom-20 -right-20 w-96 h-96 rounded-full bg-indigo-600/20 blur-3xl pointer-events-none -z-10"></div>
 
-    <form action="{{ url_for('login') }}" method="POST" class="space-y-4">
-      <div>
-        <label class="block text-xs font-semibold text-slate-700 mb-1">Username</label>
-        <input 
-          type="text" 
-          name="username" 
-          required 
-          placeholder="Enter your username" 
-          class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-        >
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
-        <input 
-          type="password" 
-          name="password" 
-          required 
-          placeholder="••••••••" 
-          class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-        >
-      </div>
-
-      <button 
-        type="submit" 
-        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors shadow-sm"
+  <!-- Top Header with Institutional Accreditation Badge -->
+  <header class="w-full border-b border-white/10 bg-slate-950/60 backdrop-blur-md px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <img 
+        src="{{ url_for('static', filename='cu_logo.png') }}" 
+        alt="Chandigarh University" 
+        class="h-9 w-auto object-contain bg-white rounded p-0.5 shadow-sm"
+        onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/en/thumb/d/d7/Chandigarh_University_seal.svg/1200px-Chandigarh_University_seal.svg.png';"
       >
-        Sign In
-      </button>
-    </form>
-
-    <div class="mt-6 text-center text-xs text-slate-500">
-      Don't have an account? 
-      <a href="{{ url_for('register') }}" class="text-indigo-600 font-semibold hover:underline">Register here</a>
+      <div>
+        <span class="text-xs font-bold text-white tracking-wide block">Chandigarh University</span>
+        <span class="text-[10px] font-mono text-slate-400">Department of Computer Science & Engineering</span>
+      </div>
     </div>
-  </div>
+    <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-rose-500/30 text-rose-300 bg-rose-950/40">
+      Academic Evaluation v2.0
+    </span>
+  </header>
+
+  <!-- Login Form Container -->
+  <main class="flex-1 flex items-center justify-center p-4 my-6">
+    <div class="glass-card max-w-md w-full rounded-3xl p-8 border relative z-10">
+      
+      <!-- Distinct FixPoint Brand Logo -->
+      <div class="text-center mb-7">
+        <div class="w-14 h-14 mx-auto mb-3 flex items-center justify-center">
+          <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+            <defs>
+              <linearGradient id="fpLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f43f5e" />
+                <stop offset="50%" stop-color="#ef4444" />
+                <stop offset="100%" stop-color="#b91c1c" />
+              </linearGradient>
+            </defs>
+            <polygon points="50,4 92,26 92,74 50,96 8,74 8,26" fill="rgba(15, 23, 42, 0.95)" stroke="url(#fpLogoGrad)" stroke-width="6" stroke-linejoin="round"/>
+            <path d="M54 22 L32 52 L48 52 L44 78 L68 46 L52 46 Z" fill="url(#fpLogoGrad)"/>
+          </svg>
+        </div>
+
+        <h1 class="text-2xl font-black tracking-tight text-white">
+          FIX<span class="bg-gradient-to-r from-rose-500 to-red-400 bg-clip-text text-transparent">POINT</span>
+        </h1>
+        <p class="text-xs text-slate-400 mt-1 font-medium">Smart Hostel Grievance & SLA Management System</p>
+      </div>
+
+      <!-- Quick Role Fill Selector for Project Demo -->
+      <div class="mb-5 flex gap-2 p-1 rounded-xl bg-slate-900/80 border border-white/10 text-xs">
+        <button 
+          type="button" 
+          onclick="fillCredentials('student', 'student@123')"
+          class="flex-1 py-1.5 font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition text-center"
+        >
+          👨‍🎓 Student Role
+        </button>
+        <button 
+          type="button" 
+          onclick="fillCredentials('warden', 'warden@123')"
+          class="flex-1 py-1.5 font-semibold text-rose-300 hover:text-white hover:bg-rose-950/60 rounded-lg transition text-center"
+        >
+          🛡️ Warden Role
+        </button>
+      </div>
+
+      <!-- Notifications -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-5 space-y-2">
+            {% for category, msg in messages %}
+              <div class="p-3.5 rounded-xl text-xs font-semibold border {% if category == 'error' %}bg-rose-950/80 border-rose-700 text-rose-200{% elif category == 'warning' %}bg-amber-950/80 border-amber-700 text-amber-200{% else %}bg-emerald-950/80 border-emerald-700 text-emerald-200{% endif %}">
+                {{ msg }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form action="{{ url_for('login') }}" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5 font-mono">UID / Username</label>
+          <input 
+            type="text" 
+            name="username" 
+            id="loginUsername" 
+            required 
+            placeholder="e.g. 26BCS12057 or warden" 
+            class="w-full bg-slate-900/90 text-white placeholder-slate-500 px-4 py-2.5 text-sm border border-white/15 rounded-xl focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/30 transition"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5 font-mono">Password</label>
+          <input 
+            type="password" 
+            name="password" 
+            id="loginPassword" 
+            required 
+            placeholder="••••••••" 
+            class="w-full bg-slate-900/90 text-white placeholder-slate-500 px-4 py-2.5 text-sm border border-white/15 rounded-xl focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/30 transition"
+          >
+        </div>
+
+        <button 
+          type="submit" 
+          class="glow-btn w-full mt-2 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-rose-500 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+        >
+          Authenticate & Access System
+        </button>
+      </form>
+
+      <div class="mt-6 pt-5 border-t border-white/10 text-center text-xs text-slate-400">
+        New resident? 
+        <a href="{{ url_for('register') }}" class="text-rose-400 font-bold hover:underline ml-1">Create Student Account</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footbar -->
+  <footer class="w-full border-t border-white/10 bg-slate-950/80 backdrop-blur-md py-4 px-6 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-2">
+    <div>
+      <span class="text-xs font-bold text-white">FixPoint v2.0 • Academic Capstone Project</span>
+      <span class="text-xs font-mono text-rose-400 block sm:inline sm:ml-2">
+        Created by Arpit Sharma (26BCS12057)
+      </span>
+    </div>
+    <div class="text-[11px] font-mono text-slate-500">
+      Design Thinking & Innovation Evaluation
+    </div>
+  </footer>
+
+  <script>
+    function fillCredentials(u, p) {
+      document.getElementById('loginUsername').value = u;
+      document.getElementById('loginPassword').value = p;
+    }
+  </script>
 </body>
 </html>

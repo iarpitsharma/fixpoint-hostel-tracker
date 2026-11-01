@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FixPoint - Room Door QR Pass</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+      .print-box { border: 2px solid #b91c1c !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 min-h-screen flex flex-col items-center justify-center p-6 text-slate-100">
+
+  <!-- Printable Door Sticker Frame -->
+  <div class="print-box max-w-sm w-full bg-white text-slate-900 rounded-3xl p-8 border-4 border-red-700 shadow-2xl text-center">
+    
+    <div class="flex items-center justify-center space-x-2 mb-3">
+      <img 
+        src="{{ url_for('static', filename='cu_logo.png') }}" 
+        alt="CU Logo" 
+        class="h-10 w-auto object-contain"
+        onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/en/thumb/d/d7/Chandigarh_University_seal.svg/1200px-Chandigarh_University_seal.svg.png';"
+      >
+      <div class="text-left">
+        <h2 class="text-sm font-black tracking-tight text-red-700 leading-tight">CHANDIGARH UNIVERSITY</h2>
+        <p class="text-[10px] font-bold text-slate-600">HOSTEL GRIEVANCE PASS</p>
+      </div>
+    </div>
+
+    <div class="bg-red-50 border border-red-200 rounded-2xl py-2 px-4 mb-4">
+      <span class="text-xs uppercase tracking-wider font-extrabold text-red-800">ROOM IDENTIFIER</span>
+      <h1 class="text-2xl font-black font-mono text-red-700">{{ room }}</h1>
+    </div>
+
+    <!-- QR Container -->
+    <div id="qrcode" class="flex justify-center my-4 p-3 bg-white border border-slate-200 rounded-2xl shadow-inner"></div>
+
+    <p class="text-xs font-bold text-slate-800 mt-2">
+      Scan with any smartphone camera
+    </p>
+    <p class="text-[11px] text-slate-500 mt-0.5">
+      Directly pre-fills room number & opens ticket registration form
+    </p>
+
+    <div class="mt-4 pt-3 border-t border-slate-200 text-[10px] font-mono text-slate-400">
+      FixPoint v2.0 • Created by Arpit Sharma (26BCS12057)
+    </div>
+  </div>
+
+  <div class="no-print mt-6 flex gap-3">
+    <button onclick="window.print()" class="bg-red-700 hover:bg-red-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow transition">
+      🖨️ Print Door Sticker
+    </button>
+    <a href="{{ url_for('student_dashboard') }}" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-5 py-2.5 rounded-xl border border-slate-700 transition">
+      Back to Dashboard
+    </a>
+  </div>
+
+  <script>
+    const targetUrl = "{{ host_url }}{{ url_for('new_complaint') }}?room={{ room }}";
+    new QRCode(document.getElementById("qrcode"), {
+      text: targetUrl,
+      width: 180,
+      height: 180,
+      colorDark : "#881337",
+      colorLight : "#ffffff",
+      correctLevel : QRCode.CorrectLevel.H
+    });
+  </script>
+</body>
+</html>

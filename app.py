@@ -27,7 +27,6 @@ def init_db():
     conn = get_db()
     cursor = conn.cursor()
     
-    # Users table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,8 +36,7 @@ def init_db():
             room_no TEXT
         )
     ''')
-    
-    # Complaints table
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS complaints (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +54,6 @@ def init_db():
         )
     ''')
     
-    # 1-vote-per-student table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS complaint_votes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,7 +66,6 @@ def init_db():
         )
     ''')
     
-    # Auto-seed and enforce the specified official Warden credentials
     cursor.execute("SELECT id FROM users WHERE username = 'warden'")
     existing_warden = cursor.fetchone()
     warden_hashed_pw = generate_password_hash('warden@123')
@@ -119,12 +115,10 @@ def register():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         room_no = request.form.get('room_no', '').strip()
-        
-        # Enforce student role for all self-registrations
         role = 'student'
         
-        if not username or not password:
-            flash("Username and password are required.", "error")
+        if not username or not password or not room_no:
+            flash("Username, password, and room number are required.", "error")
             return redirect(url_for('register'))
             
         conn = get_db()
@@ -232,7 +226,45 @@ def new_complaint():
         
         flash("Complaint registered successfully!", "success")
         return redirect(url_for('student_dashboard'))
-    return render_template('new_complaint.html')
+    
+    prefill_category = request.args.get('category', '')
+    prefill_priority = request.args.get('priority', 'Medium')
+    
+    return render_template('new_complaint.html', prefill_category=prefill_category, prefill_priority=prefill_priority)
+
+@app.route('/complaint/verify/<int:complaint_id>', methods=['POST'])
+def verify_complaint(complaint_id):
+    if 'user_id' not in session or session.get('role') != 'student':
+        return redirect(url_for('login'))
+    
+    decision = request.form.get('decision')
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT user_id, title FROM complaints WHERE id = ?", (complaint_id,))
+    ticket = cursor.fetchone()
+    
+    if not ticket or ticket['user_id'] != session['user_id']:
+        conn.close()
+        flash("Only the resident who logged this ticket can confirm resolution.", "error")
+        return redirect(url_for('student_dashboard'))
+    
+    if decision == 'yes':
+        cursor.execute("UPDATE complaints SET status = 'Closed' WHERE id = ?", (complaint_id,))
+        flash(f"Ticket #{complaint_id} verified and officially closed. Thank you!", "success")
+    elif decision == 'no':
+        cursor.execute("UPDATE complaints SET status = 'Reopened', resolution_notes = 'Student verified: Issue still persists.' WHERE id = ?", (complaint_id,))
+        flash(f"Ticket #{complaint_id} reopened and reported back to warden.", "warning")
+    
+    conn.commit()
+    conn.close()
+    return redirect(url_for('student_dashboard'))
+
+@app.route('/door-qr')
+def door_qr():
+    room = request.args.get('room', session.get('room_no', 'NC2-808'))
+    host_url = request.host_url.rstrip('/')
+    return render_template('door_qr.html', room=room, host_url=host_url)
 
 @app.route('/upvote/<int:complaint_id>', methods=['POST'])
 def upvote(complaint_id):
@@ -284,10 +316,10 @@ def warden_dashboard():
     complaints = cursor.fetchall()
     
     total = len(complaints)
-    pending = sum(1 for c in complaints if c['status'] == 'Pending')
+    pending = sum(1 for c in complaints if c['status'] in ['Pending', 'Reopened'])
     in_progress = sum(1 for c in complaints if c['status'] == 'In Progress')
     escalated = sum(1 for c in complaints if c['status'] == 'Escalated')
-    resolved = sum(1 for c in complaints if c['status'] == 'Resolved')
+    resolved = sum(1 for c in complaints if c['status'] in ['Resolved', 'Closed'])
 
     category_counts = {}
     for c in complaints:
@@ -328,10 +360,9 @@ def update_status(complaint_id):
     conn.commit()
     conn.close()
     
-    flash("Complaint updated successfully.", "success")
+    flash(f"Ticket #{complaint_id} updated to '{status}'.", "success")
     return redirect(url_for('warden_dashboard'))
 
-# Feature 1: Warden Deletion of Ticket
 @app.route('/complaint/delete/<int:complaint_id>', methods=['POST'])
 def delete_complaint(complaint_id):
     if 'user_id' not in session or session.get('role') != 'warden':
@@ -339,8 +370,6 @@ def delete_complaint(complaint_id):
     
     conn = get_db()
     cursor = conn.cursor()
-    
-    # Remove image from storage if uploaded
     cursor.execute("SELECT image_filename FROM complaints WHERE id = ?", (complaint_id,))
     complaint = cursor.fetchone()
     if complaint and complaint['image_filename']:
@@ -351,14 +380,12 @@ def delete_complaint(complaint_id):
             except OSError:
                 pass
 
-    # Remove linked votes and complaint record
     cursor.execute("DELETE FROM complaint_votes WHERE complaint_id = ?", (complaint_id,))
     cursor.execute("DELETE FROM complaints WHERE id = ?", (complaint_id,))
-    
     conn.commit()
     conn.close()
     
-    flash(f"Ticket #{complaint_id} has been permanently deleted.", "success")
+    flash(f"Ticket #{complaint_id} permanently deleted.", "success")
     return redirect(url_for('warden_dashboard'))
 
 @app.route('/warden/export-csv')

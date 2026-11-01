@@ -1,37 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="cu-red">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FixPoint - Warden Command Center</title>
+  <title>FixPoint - Warden Command Center | Chandigarh University</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* 🔴 CU Official Red & White */
+    html[data-theme="cu-red"] {
+      --bg-base: #5a0b0d;
+      --bg-surface: rgba(140, 20, 24, 0.88);
+      --bg-card: rgba(169, 27, 29, 0.82);
+      --border-glow: rgba(255, 255, 255, 0.28);
+      --border-hover: rgba(255, 255, 255, 0.85);
+      --accent-primary: #ffffff;
+      --text-main: #ffffff;
+      --text-muted: #fed7aa;
+    }
+
+    /* 🌌 Cyberpunk Void */
+    html[data-theme="cyberpunk"] {
+      --bg-base: #060913;
+      --bg-surface: rgba(15, 23, 42, 0.75);
+      --bg-card: rgba(20, 27, 45, 0.7);
+      --border-glow: rgba(56, 189, 248, 0.25);
+      --border-hover: rgba(168, 85, 247, 0.6);
+      --accent-primary: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    /* ⚡ Hyper Violet */
+    html[data-theme="hyperviolet"] {
+      --bg-base: #090314;
+      --bg-surface: rgba(27, 14, 46, 0.8);
+      --bg-card: rgba(36, 18, 62, 0.7);
+      --border-glow: rgba(168, 85, 247, 0.3);
+      --border-hover: rgba(236, 72, 153, 0.6);
+      --accent-primary: #c084fc;
+      --text-main: #faf5ff;
+      --text-muted: #c084fc;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      transition: background-color 0.35s ease, color 0.35s ease;
+    }
+
+    .cyber-grid {
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    .glass-panel {
+      background: var(--bg-surface);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+    }
+  </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800">
-  <!-- Top Navigation -->
-  <nav class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow sticky top-0 z-50">
-    <div class="flex items-center space-x-2">
-      <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center font-bold text-white shadow">FP</div>
-      <div>
-        <span class="font-bold text-lg tracking-tight">FixPoint</span>
-        <span class="text-xs bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded ml-2 font-mono">Warden Panel</span>
+<body class="min-h-screen flex flex-col justify-between cyber-grid relative overflow-x-hidden">
+
+  <!-- Header -->
+  <header class="glass-panel sticky top-0 z-40 border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- CU Institutional Seal + App Brand Separation -->
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2.5 pr-4 border-r border-white/20">
+          <img 
+            src="{{ url_for('static', filename='cu_logo.png') }}" 
+            alt="Chandigarh University" 
+            class="h-10 w-auto object-contain bg-white rounded p-0.5 shadow-sm"
+            onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/en/thumb/d/d7/Chandigarh_University_seal.svg/1200px-Chandigarh_University_seal.svg.png';"
+          >
+          <div class="hidden sm:block">
+            <span class="text-[11px] font-bold text-white block uppercase tracking-wider">Chandigarh University</span>
+            <span class="text-[9px] font-mono text-red-200">Dept. of Computer Science & Eng.</span>
+          </div>
+        </div>
+
+        <a href="{{ url_for('warden_dashboard') }}" class="flex items-center space-x-2.5 group">
+          <div class="w-9 h-9 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
+              <defs>
+                <linearGradient id="wardenFpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffffff" />
+                  <stop offset="100%" stop-color="#fca5a5" />
+                </linearGradient>
+              </defs>
+              <polygon points="50,4 92,26 92,74 50,96 8,74 8,26" fill="rgba(15, 23, 42, 0.9)" stroke="url(#wardenFpGrad)" stroke-width="6" stroke-linejoin="round"/>
+              <path d="M54 22 L32 52 L48 52 L44 78 L68 46 L52 46 Z" fill="url(#wardenFpGrad)"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-black tracking-tight text-white">
+                FIX<span class="text-white drop-shadow-md">POINT</span>
+              </span>
+              <span class="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full uppercase border border-white/40 text-white bg-black/25">
+                WARDEN COMMAND
+              </span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center space-x-3">
+        <select 
+          id="themeSelector" 
+          onchange="switchTheme(this.value)" 
+          class="glass-panel text-xs font-bold px-3 py-2 rounded-xl border text-white cursor-pointer focus:outline-none"
+        >
+          <option value="cu-red" class="bg-red-950 font-bold">🔴 CU Red & White</option>
+          <option value="cyberpunk" class="bg-slate-900">🌌 Cyberpunk</option>
+          <option value="hyperviolet" class="bg-slate-900">⚡ Hyper Violet</option>
+        </select>
+
+        <a href="{{ url_for('door_qr', room='Hostel-Block') }}" class="glass-panel text-xs font-bold px-3.5 py-2 rounded-xl transition inline-flex items-center gap-1.5 text-white hover:bg-white hover:text-red-900">
+          <span>📱 Door QR Pass</span>
+        </a>
+
+        <a href="{{ url_for('export_csv') }}" class="text-xs font-black px-4 py-2 rounded-xl transition inline-flex items-center gap-1.5 bg-white text-red-900 hover:bg-red-50 shadow-lg">
+          <span>⬇ Export CSV</span>
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="text-xs font-bold text-white/80 hover:text-white px-2 py-1.5 transition">
+          Logout
+        </a>
       </div>
     </div>
-    <div class="flex items-center space-x-4 text-sm">
-      <a href="{{ url_for('export_csv') }}" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow flex items-center gap-1.5 transition">
-        <span>↓ Export CSV Report</span>
-      </a>
-      <span class="text-slate-300 font-medium">Warden: {{ session['username'] }}</span>
-      <a href="{{ url_for('logout') }}" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-200 transition">Logout</a>
-    </div>
-  </nav>
+  </header>
 
-  <main class="max-w-7xl mx-auto px-4 py-8">
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1 w-full">
+
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="mb-6 space-y-2">
+        <div class="space-y-2">
           {% for category, msg in messages %}
-            <div class="p-3 rounded-lg text-sm {% if category == 'error' %}bg-rose-100 text-rose-700{% elif category == 'warning' %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
+            <div class="p-4 rounded-2xl text-xs font-bold border backdrop-blur-md {% if category == 'error' %}bg-rose-950/80 border-rose-600 text-white{% elif category == 'warning' %}bg-amber-950/80 border-amber-500 text-amber-200{% else %}bg-emerald-950/80 border-emerald-500 text-emerald-200{% endif %}">
               {{ msg }}
             </div>
           {% endfor %}
@@ -39,226 +157,194 @@
       {% endif %}
     {% endwith %}
 
-    <!-- Metrics Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Tickets</p>
-        <p class="text-2xl font-bold text-slate-900 mt-1">{{ total }}</p>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="glass-panel rounded-2xl p-4 border text-left">
+        <span class="text-xs text-white/80 block font-medium">Total Registered</span>
+        <span class="text-2xl font-black font-mono text-white mt-1">{{ total }}</span>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-amber-200 bg-amber-50/20 shadow-sm">
-        <p class="text-xs font-medium text-amber-600 uppercase tracking-wider">Pending</p>
-        <p class="text-2xl font-bold text-amber-600 mt-1">{{ pending }}</p>
+
+      <div class="glass-panel rounded-2xl p-4 border border-amber-400/40 text-left">
+        <span class="text-xs text-amber-300 block font-medium">Pending Triage</span>
+        <span class="text-2xl font-black font-mono text-amber-200 mt-1">{{ pending }}</span>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm">
-        <p class="text-xs font-medium text-blue-600 uppercase tracking-wider">In Progress</p>
-        <p class="text-2xl font-bold text-blue-600 mt-1">{{ in_progress }}</p>
+
+      <div class="glass-panel rounded-2xl p-4 border border-sky-400/40 text-left">
+        <span class="text-xs text-sky-300 block font-medium">Work In Progress</span>
+        <span class="text-2xl font-black font-mono text-sky-200 mt-1">{{ in_progress }}</span>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-rose-200 bg-rose-50/40 shadow-sm">
-        <p class="text-xs font-medium text-rose-600 uppercase tracking-wider">Escalated (&gt;24h)</p>
-        <p class="text-2xl font-bold text-rose-600 mt-1">{{ escalated }}</p>
+
+      <div class="glass-panel rounded-2xl p-4 border border-white text-left">
+        <span class="text-xs text-white block font-black">🚨 SLA Escalated (&gt;24h)</span>
+        <span class="text-2xl font-black font-mono text-white mt-1 animate-pulse">{{ escalated }}</span>
       </div>
-      <div class="bg-white p-4 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm">
-        <p class="text-xs font-medium text-emerald-600 uppercase tracking-wider">Resolved</p>
-        <p class="text-2xl font-bold text-emerald-600 mt-1">{{ resolved }}</p>
+
+      <div class="glass-panel rounded-2xl p-4 border border-emerald-400/40 text-left">
+        <span class="text-xs text-emerald-300 block font-medium">Resolved / Closed</span>
+        <span class="text-2xl font-black font-mono text-emerald-200 mt-1">{{ resolved }}</span>
       </div>
     </div>
 
-    <!-- Analytics Charts Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <h3 class="text-sm font-bold text-slate-800 mb-3">Complaints by Status</h3>
-        <div class="h-56 flex items-center justify-center">
-          <canvas id="statusChart"></canvas>
-        </div>
-      </div>
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <h3 class="text-sm font-bold text-slate-800 mb-3">Complaints by Category</h3>
-        <div class="h-56 flex items-center justify-center">
-          <canvas id="categoryChart"></canvas>
-        </div>
+    <div class="glass-panel rounded-3xl p-6 border">
+      <h3 class="text-sm font-bold text-white mb-4">Grievance Distribution Analytics</h3>
+      <div class="max-w-md mx-auto h-52 flex items-center justify-center">
+        <canvas id="categoryChart"></canvas>
       </div>
     </div>
 
-    <!-- Search & Filters -->
-    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
-      <div class="w-full sm:w-80">
-        <input 
-          type="text" 
-          id="searchInput" 
-          onkeyup="filterComplaints()" 
-          placeholder="Search by student, room, title..." 
-          class="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-        >
-      </div>
-      <div class="flex gap-2 w-full sm:w-auto">
-        <select id="statusFilter" onchange="filterComplaints()" class="text-xs border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-          <option value="ALL">All Statuses</option>
-          <option value="Pending">Pending</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Escalated">Escalated</option>
-          <option value="Resolved">Resolved</option>
-        </select>
-        <select id="categoryFilter" onchange="filterComplaints()" class="text-xs border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-          <option value="ALL">All Categories</option>
-          <option value="Electricity">Electricity</option>
-          <option value="Plumbing">Plumbing</option>
-          <option value="Carpentry">Carpentry</option>
-          <option value="Wi-Fi & Internet">Wi-Fi & Internet</option>
-          <option value="Cleanliness">Cleanliness</option>
-          <option value="Mess / Food">Mess / Food</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Grievances List -->
-    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-        <h2 class="font-bold text-slate-900">Manage Tickets</h2>
-        <span class="text-xs text-slate-500" id="ticketCount">Showing {{ complaints|length }} tickets</span>
+    <div class="glass-panel rounded-3xl overflow-hidden border shadow-2xl">
+      <div class="px-6 py-4 border-b border-white/20 flex items-center justify-between">
+        <h2 class="text-sm font-bold text-white uppercase tracking-wider">Facility Triage & Dispatch Queue</h2>
+        <span class="text-[11px] font-mono text-white/80">Total Records: {{ complaints|length }}</span>
       </div>
 
-      <div class="divide-y divide-slate-200" id="complaintsList">
-        {% for c in complaints %}
-          <div class="p-6 complaint-item" data-title="{{ c.title|lower }}" data-username="{{ c.username|lower }}" data-room="{{ c.room_no }}" data-status="{{ c.status }}" data-category="{{ c.category }}">
-            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-              <div>
-                <div class="flex flex-wrap items-center gap-2 mb-2">
-                  <span class="text-xs font-bold px-2 py-0.5 rounded-full
-                    {% if c.status == 'Resolved' %}bg-emerald-100 text-emerald-700
-                    {% elif c.status == 'Escalated' %}bg-rose-100 text-rose-700
-                    {% elif c.status == 'In Progress' %}bg-blue-100 text-blue-700
-                    {% else %}bg-amber-100 text-amber-700{% endif %}">
-                    {{ c.status }}
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-white">
+          <thead class="bg-black/40 font-mono text-[10px] uppercase tracking-wider text-white/80 border-b border-white/20">
+            <tr>
+              <th class="py-3 px-4">Ticket</th>
+              <th class="py-3 px-4">Resident</th>
+              <th class="py-3 px-4">Category</th>
+              <th class="py-3 px-4">Issue Description</th>
+              <th class="py-3 px-4 text-center">Votes</th>
+              <th class="py-3 px-4">Update Status</th>
+              <th class="py-3 px-4 text-right">Delete</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/10 font-normal">
+            {% for c in complaints %}
+              <tr class="hover:bg-black/20 transition">
+                <td class="py-3.5 px-4 font-mono font-bold text-white">
+                  #{{ c['id'] }}
+                </td>
+
+                <td class="py-3.5 px-4">
+                  <span class="font-bold text-white block">{{ c['username'] }}</span>
+                  <span class="text-[11px] font-mono text-white/70">Room {{ c['room_no'] }}</span>
+                </td>
+
+                <td class="py-3.5 px-4">
+                  <span class="bg-black/30 text-white px-2 py-0.5 rounded text-[10px] font-semibold border border-white/20">
+                    {{ c['category'] }}
                   </span>
-                  <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">{{ c.category }}</span>
-                  <span class="text-xs font-semibold px-2 py-0.5 rounded 
-                    {% if c.priority == 'Urgent' %}bg-red-100 text-red-700
-                    {% elif c.priority == 'High' %}bg-orange-100 text-orange-700
-                    {% else %}bg-slate-100 text-slate-600{% endif %}">
-                    {{ c.priority }}
+                </td>
+
+                <td class="py-3.5 px-4 max-w-xs">
+                  <span class="font-bold text-white block mb-0.5">{{ c['title'] }}</span>
+                  <p class="text-white/80 text-[11px] line-clamp-2">{{ c['description'] }}</p>
+                  {% if c['image_filename'] %}
+                    <a href="{{ url_for('static', filename='uploads/' + c['image_filename']) }}" target="_blank" class="text-amber-300 hover:underline text-[10px] mt-1 inline-block">
+                      📎 Photo Proof
+                    </a>
+                  {% endif %}
+                </td>
+
+                <td class="py-3.5 px-4 text-center">
+                  <span class="font-mono bg-black/30 text-white px-2.5 py-1 rounded-full text-xs font-bold border border-white/20">
+                    {{ c['upvotes'] }}
                   </span>
-                  <span class="text-xs text-slate-400">#{{ c.id }}</span>
-                </div>
-                <h3 class="text-base font-bold text-slate-900">{{ c.title }}</h3>
-                <p class="text-xs text-slate-500 mt-1">
-                  Reported by <strong>{{ c.username }}</strong> (Room {{ c.room_no }}) on {{ c.created_at }}
-                  • <span class="text-indigo-600 font-semibold">{{ c.upvotes }} student upvotes</span>
-                </p>
-              </div>
+                </td>
 
-              <!-- Action Buttons: Update Status & Delete Ticket -->
-              <div class="flex flex-wrap items-center gap-2">
-                <form action="{{ url_for('update_status', complaint_id=c.id) }}" method="POST" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                  <select name="status" class="text-xs font-medium border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500">
-                    <option value="Pending" {% if c.status == 'Pending' %}selected{% endif %}>Pending</option>
-                    <option value="In Progress" {% if c.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                    <option value="Escalated" {% if c.status == 'Escalated' %}selected{% endif %}>Escalated</option>
-                    <option value="Resolved" {% if c.status == 'Resolved' %}selected{% endif %}>Resolved</option>
-                  </select>
-                  <input 
-                    type="text" 
-                    name="resolution_notes" 
-                    value="{{ c.resolution_notes or '' }}" 
-                    placeholder="Resolution remarks..." 
-                    class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 w-48"
-                  >
-                  <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
-                    Save
-                  </button>
-                </form>
+                <td class="py-3.5 px-4">
+                  <form action="{{ url_for('update_status', complaint_id=c['id']) }}" method="POST" class="space-y-1.5">
+                    <div class="flex items-center gap-1.5">
+                      <select name="status" class="bg-black/40 border border-white/30 text-white rounded-lg px-2 py-1 text-xs focus:outline-none">
+                        <option value="Pending" {% if c['status'] == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="In Progress" {% if c['status'] == 'In Progress' %}selected{% endif %}>In Progress</option>
+                        <option value="Escalated" {% if c['status'] == 'Escalated' %}selected{% endif %}>Escalated</option>
+                        <option value="Resolved" {% if c['status'] == 'Resolved' %}selected{% endif %}>Resolved</option>
+                      </select>
 
-                <!-- Dedicated Warden Delete Button -->
-                <form action="{{ url_for('delete_complaint', complaint_id=c.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete ticket #{{ c.id }}?');">
-                  <button type="submit" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
-                    Delete
-                  </button>
-                </form>
-              </div>
-            </div>
+                      <button type="submit" class="bg-white hover:bg-slate-100 text-red-900 px-2.5 py-1 rounded-lg text-xs font-black transition">
+                        Save
+                      </button>
+                    </div>
 
-            <p class="text-sm text-slate-700 whitespace-pre-wrap mb-3">{{ c.description }}</p>
+                    <input 
+                      type="text" 
+                      name="resolution_notes" 
+                      placeholder="Remarks note..." 
+                      value="{{ c['resolution_notes'] or '' }}" 
+                      class="bg-black/40 border border-white/30 text-white rounded-lg px-2 py-1 text-[11px] w-full focus:outline-none"
+                    >
+                  </form>
+                </td>
 
-            {% if c.image_filename %}
-              <div class="mt-2">
-                <img src="{{ url_for('static', filename='uploads/' + c.image_filename) }}" alt="Ticket photo" class="max-h-48 rounded-lg border object-cover">
-              </div>
-            {% endif %}
-          </div>
-        {% else %}
-          <div class="text-center py-12 text-slate-400 text-sm">
-            No complaints currently recorded.
-          </div>
-        {% endfor %}
+                <td class="py-3.5 px-4 text-right">
+                  <form action="{{ url_for('delete_complaint', complaint_id=c['id']) }}" method="POST" onsubmit="return confirm('Permanently purge Ticket #{{ c['id'] }}?');">
+                    <button type="submit" class="text-rose-300 hover:text-white font-bold px-2 py-1 rounded-lg hover:bg-rose-950/60 transition">
+                      ✕
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
+
   </main>
 
+  <!-- Footbar -->
+  <footer class="glass-panel border-t mt-12 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <div class="flex items-center space-x-3">
+        <img 
+          src="{{ url_for('static', filename='cu_logo.png') }}" 
+          alt="CU Seal" 
+          class="h-7 w-auto object-contain bg-white rounded p-0.5"
+          onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/en/thumb/d/d7/Chandigarh_University_seal.svg/1200px-Chandigarh_University_seal.svg.png';"
+        >
+        <div>
+          <p class="text-xs font-bold tracking-wide" style="color: var(--text-main);">
+            FixPoint v2.0 • Chandigarh University
+          </p>
+          <p class="text-[11px] font-mono" style="color: var(--text-muted);">
+            Created by Arpit Sharma (26BCS12057)
+          </p>
+        </div>
+      </div>
+      <div class="text-xs font-mono font-medium" style="color: var(--text-muted);">
+        UIE • Computer Science & Engineering
+      </div>
+    </div>
+  </footer>
+
   <script>
-    new Chart(document.getElementById('statusChart'), {
-      type: 'doughnut',
-      data: {
-        labels: ['Pending', 'In Progress', 'Escalated', 'Resolved'],
-        datasets: [{
-          data: [{{ pending }}, {{ in_progress }}, {{ escalated }}, {{ resolved }}],
-          backgroundColor: ['#f59e0b', '#3b82f6', '#f43f5e', '#10b981'],
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } }
-      }
-    });
+    function switchTheme(themeName) {
+      document.documentElement.setAttribute('data-theme', themeName);
+      localStorage.setItem('fixpoint_theme', themeName);
+    }
+    const savedTheme = localStorage.getItem('fixpoint_theme') || 'cu-red';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    const selector = document.getElementById('themeSelector');
+    if (selector) selector.value = savedTheme;
 
-    const catLabels = {{ chart_categories|safe }};
-    const catValues = {{ chart_category_values|safe }};
-    new Chart(document.getElementById('categoryChart'), {
-      type: 'bar',
-      data: {
-        labels: catLabels.length ? catLabels : ['None'],
-        datasets: [{
-          label: 'Tickets',
-          data: catValues.length ? catValues : [0],
-          backgroundColor: '#6366f1',
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-      }
-    });
+    const categories = {{ chart_categories|safe }};
+    const counts = {{ chart_category_values|safe }};
 
-    function filterComplaints() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const status = document.getElementById('statusFilter').value;
-      const category = document.getElementById('categoryFilter').value;
-      const items = document.querySelectorAll('.complaint-item');
-      let visibleCount = 0;
-
-      items.forEach(item => {
-        const title = item.getAttribute('data-title');
-        const user = item.getAttribute('data-username');
-        const room = item.getAttribute('data-room');
-        const itemStatus = item.getAttribute('data-status');
-        const itemCategory = item.getAttribute('data-category');
-
-        const matchesSearch = title.includes(search) || user.includes(search) || room.includes(search);
-        const matchesStatus = (status === 'ALL' || itemStatus === status);
-        const matchesCategory = (category === 'ALL' || itemCategory === category);
-
-        if (matchesSearch && matchesStatus && matchesCategory) {
-          item.style.display = '';
-          visibleCount++;
-        } else {
-          item.style.display = 'none';
+    if (categories.length > 0) {
+      new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+          labels: categories,
+          datasets: [{
+            data: counts,
+            backgroundColor: ['#ffffff', '#fecaca', '#f87171', '#ef4444', '#b91c1c', '#7f1d1d'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#ffffff', font: { size: 11, weight: 'bold' } }
+            }
+          }
         }
       });
-      document.getElementById('ticketCount').innerText = `Showing ${visibleCount} tickets`;
     }
   </script>
 </body>
